@@ -2,7 +2,7 @@ void printString(char*);
 void readString(char*);
 void readSector(char* buffer, int sector);  
 void handleInterrupt21(int ax, int bx, int cx, int dx); 
-int readFile(char*, char*); 
+void readFile(char*, char*); 
 void executeProgram(char* name, int segment);
 void terminate();
 
@@ -123,7 +123,7 @@ void handleInterrupt21(int ax, int bx, int cx, int dx) {
 /*
 	Takes as input the name of a file and loads it into an array in memory
 */
-int readFile(char* fileName, char* buffer) 
+void readFile(char* fileName, char* buffer) 
 {
 	char directory[512] ;
 	int i = 0;
@@ -151,10 +151,10 @@ int readFile(char* fileName, char* buffer)
 			{
 				readSector(buffer + (count++) * 512, directory[k++]); 
 			}
-			return count * 512; 
+			break; 
 		}
 	}
-	return 0;
+	
 }
 
 /*
@@ -164,8 +164,8 @@ void executeProgram(char* name, int segment)
 {
 	char buffer[13312];
 	int i = 0;
-	int buffer_size = readFile(name, buffer);
-	for(i = 0;  i < 13312 i++)
+	readFile(name, buffer);
+	for(i = 0;  i < 13312; i++)
 	{
 		putInMemory(segment, i, buffer[i]);
 	}
