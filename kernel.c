@@ -77,11 +77,13 @@ void readString(char* s)
 		// again write '\b' to move the cursor back one character
 		// and update the current index of the String
 		if(in == 0x8)
-		{	
-			interrupt(0x10, 0xE*256+'\b', 0, 0, 0);
-			interrupt(0x10, 0xE*256+' ', 0, 0, 0);
-			interrupt(0x10, 0xE*256+'\b', 0, 0, 0);
-			if(i > 0) i--;
+		{	if(i > 0) 
+			{
+				interrupt(0x10, 0xE*256+'\b', 0, 0, 0);
+				interrupt(0x10, 0xE*256+' ', 0, 0, 0);
+				interrupt(0x10, 0xE*256+'\b', 0, 0, 0);
+				i--;
+			}
 		}
 		else
 		{
