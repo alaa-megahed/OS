@@ -17,12 +17,25 @@ int main ()
 	// interrupt(0x21, 0, buffer, 0, 0); /*print out the file*/
 	// while(1); /*hang up*/
 
+	// /*
+	// 	Testing Task2
+	// */
+	// makeInterrupt21();
+	// interrupt(0x21, 4, "tstprg\0", 0x2000, 0);
+	// while(1);
+
+	/* 
+		Testing Task3
+	*/
+	// makeInterrupt21();
+	// interrupt(0x21, 4, "tstpr2\0", 0x2000, 0);
+	// while(1);
+
 	/*
-		Testing Task2
+		Testing Task4
 	*/
 	makeInterrupt21();
-	interrupt(0x21, 4, "tstprg\0", 0x2000, 0);
-	while(1);
+	interrupt(0x21, 4, "shell\0", 0x2000, 0);
 }
 
 void printString(char* s)
@@ -174,6 +187,14 @@ void executeProgram(char* name, int segment)
 
 void terminate()
 {
-	while(1);
+	// while(1);
+	char shell[6];
+	shell[0]='s';
+	shell[1]='h';
+	shell[2]='e';
+	shell[3]='l';
+	shell[4]='l';
+	shell[5]='\0';
+	interrupt(0x21, 4, shell, 0x2000, 0);
 }
 
