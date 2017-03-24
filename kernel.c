@@ -24,9 +24,9 @@ int main ()
 	// interrupt(0x21, 4, "tstprg\0", 0x2000, 0);
 	// while(1);
 
-	/* 
-		Testing Task3
-	*/
+	// /* 
+	// 	Testing Task3
+	// */
 	// makeInterrupt21();
 	// interrupt(0x21, 4, "tstpr2\0", 0x2000, 0);
 	// while(1);
@@ -140,9 +140,12 @@ void handleInterrupt21(int ax, int bx, int cx, int dx) {
 */
 void readFile(char* fileName, char* buffer) 
 {
+	// Load the directory sector into a 512 byte character array using readSector
 	char directory[512] ;
 	int i = 0;
 	readSector(directory, 2);
+
+	// Go through the directory trying to match the file name
 	for(i = 0; i < 512; i += 32)
 	{
 		int found = 1; 
@@ -154,10 +157,12 @@ void readFile(char* fileName, char* buffer)
 				found = 0; 
 				break; 
 			}
-			// if the file name is less than 6 characters, break
+			// If the file name is less than 6 characters, break
 			if(fileName[j] == '\0')
 				break;
 		}
+
+		// Using the sector numbers in the directory, load the file, sector by sector, into the buffer array
 		if(found) 
 		{
 			int k = i + 6;
@@ -169,7 +174,6 @@ void readFile(char* fileName, char* buffer)
 			break; 
 		}
 	}
-	
 }
 
 /*
@@ -179,14 +183,22 @@ void executeProgram(char* name, int segment)
 {
 	char buffer[13312];
 	int i = 0;
+	// Loading the program into a buffer
 	readFile(name, buffer);
+
+	// Transferring the program into the bottom of the segment where you want it to run
 	for(i = 0;  i < 13312; i++)
 	{
 		putInMemory(segment, i, buffer[i]);
 	}
+	// Jump to the program after setting the registers and stack pointer to the appropriate values
+	// using the assemply function launchProgram
 	launchProgram(segment);
 }
 
+/*
+	Launch a new shell
+*/
 void terminate()
 {
 	// while(1);
