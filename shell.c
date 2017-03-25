@@ -51,7 +51,6 @@ void split(char* line)
 	if(cmprstr(token[0],"view\0"))
 	{	
 		char* buffer;	
-		int check = 0;
 		buffer = "";
 		interrupt(0x21, 3, token[1], buffer, 0);
 		interrupt(0x21, 0, buffer, 0, 0);         /*print out the file*/				
