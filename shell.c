@@ -51,13 +51,15 @@ void split(char* line)
 	if(cmprstr(token[0],"view\0"))
 	{	
 		char* buffer;	
-		interrupt(0x21, 3, token[1], buffer, 0);  /*read the file into buffer*/
+		int check = 0;
+		buffer = "";
+		interrupt(0x21, 3, token[1], buffer, 0);
 		interrupt(0x21, 0, buffer, 0, 0);         /*print out the file*/				
 	}
 	// If command is execute, execute the desired program
 	else if(cmprstr(token[0],"execute"))
 	{
-		interrupt(0x21, 4, token[1], 0x2000, 0);
+		interrupt(0x21, 4, token[1], 0x2000, 0);	
 	}
 	// If the command written wasn't vlaid, print out BAD COMMAND
 	else

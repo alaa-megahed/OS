@@ -2,8 +2,8 @@ void printString(char*);
 void readString(char*);
 void readSector(char* buffer, int sector);  
 void handleInterrupt21(int ax, int bx, int cx, int dx); 
-void readFile(char*, char*); 
-void executeProgram(char* name, int segment);
+int readFile(char*, char*); 
+int executeProgram(char* name, int segment);
 void terminate();
 
 int main () 
@@ -53,7 +53,6 @@ void printString(char* s)
 		else	
 			interrupt(0x10, 0xE*256+s[i++], 0, 0, 0);
 	}
-	return;
 }
 
 void readString(char* s)
@@ -138,11 +137,12 @@ void handleInterrupt21(int ax, int bx, int cx, int dx) {
 /*
 	Takes as input the name of a file and loads it into an array in memory
 */
-void readFile(char* fileName, char* buffer) 
+int readFile(char* fileName, char* buffer) 
 {
 	// Load the directory sector into a 512 byte character array using readSector
 	char directory[512] ;
 	int i = 0;
+	char fail[16];
 	readSector(directory, 2);
 
 	// Go through the directory trying to match the file name
@@ -171,21 +171,42 @@ void readFile(char* fileName, char* buffer)
 			{
 				readSector(buffer + (count++) * 512, directory[k++]); 
 			}
-			break; 
+			return 1;
 		}
 	}
+	buffer = "";
+	fail[0]='F';
+	fail[1]='I';
+	fail[2]='L';
+	fail[3]='E';
+	fail[4]=' ';
+	fail[5]='N';
+	fail[6]='O';
+	fail[7]='T';
+	fail[8]=' ';
+	fail[9]='F';
+	fail[10]='O';
+	fail[11]='U';
+	fail[12]='N';
+	fail[13]='D';
+	fail[14]='!';
+	fail[15]='\n';
+	fail[16]='\0';
+	interrupt(0x21, 0, fail, 0, 0);
+	return 2;
 }
 
 /*
 	Takes as input the name of a program and the segment where you want it to run
 */
-void executeProgram(char* name, int segment)
+int executeProgram(char* name, int segment)
 {
 	char buffer[13312];
 	int i = 0;
 	// Loading the program into a buffer
-	readFile(name, buffer);
-
+	int found = readFile(name, buffer);
+	if(found == 2)
+		return 2;
 	// Transferring the program into the bottom of the segment where you want it to run
 	for(i = 0;  i < 13312; i++)
 	{
@@ -194,6 +215,7 @@ void executeProgram(char* name, int segment)
 	// Jump to the program after setting the registers and stack pointer to the appropriate values
 	// using the assemply function launchProgram
 	launchProgram(segment);
+	return 1;
 }
 
 /*
