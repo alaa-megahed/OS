@@ -174,7 +174,7 @@ int readFile(char* fileName, char* buffer)
 			return 1;
 		}
 	}
-	buffer = "";
+	// Print failure message if file not found
 	fail[0]='F';
 	fail[1]='I';
 	fail[2]='L';
