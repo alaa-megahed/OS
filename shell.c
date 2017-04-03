@@ -8,10 +8,11 @@ int main()
 		// makeInterrupt21();
 		interrupt(0x21, 0, "SHELL> ", 0, 0);
 
-		while(line == "\0") {
+		do {
 			// makeInterrupt21();
 			interrupt(0x21, 1, line, 0, 0);
-		}
+			// interrupt(0x21, 0, line, 0, 0);
+		} while(line=="");
 
 		split(line); 
 

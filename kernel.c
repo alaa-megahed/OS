@@ -1,6 +1,7 @@
 void printString(char*);
 void readString(char*);
 void readSector(char* buffer, int sector);  
+void writeSector(char* buffer, int sector); 
 void handleInterrupt21(int ax, int bx, int cx, int dx); 
 void readFile(char*, char*); 
 void executeProgram(char* name, int segment);
@@ -21,7 +22,7 @@ int main ()
 		Testing Task2
 	*/
 	makeInterrupt21();
-	interrupt(0x21, 4, "tstprg\0", 0x2000, 0);
+	interrupt(0x21, 4, "shell\0", 0x2000, 0);
 	while(1);
 }
 
@@ -92,6 +93,16 @@ int mod(int a, int b) {
 	return a - a/b * b; 
 }
 
+void readSector(char* buffer, int sector) {
+	int AH = 3; 
+	int AL = 1; 
+	int CH = sector / 36 ;                //cylinder
+	int CL = mod(sector, 18) + 1;         //sector 
+	int DH = mod(sector / 18, 2);         //head 
+	int DL = 0;                           //device number, 0 for floppy disk 
+	interrupt(0x13,AH*256 + AL, buffer, CH*256 + CL, DH*256 + DL); 
+}
+
 void handleInterrupt21(int ax, int bx, int cx, int dx) {
 	// task 4
 	// printString("kotomoto ya 7elwa ya batta!"); 
@@ -115,6 +126,9 @@ void handleInterrupt21(int ax, int bx, int cx, int dx) {
 	else if(ax == 5){
 		terminate();
 	}
+	else if(ax == 6) {
+		writeSector(bx,cx);
+	}
 	else {
 		printString("Error");
 	}
@@ -126,8 +140,10 @@ void handleInterrupt21(int ax, int bx, int cx, int dx) {
 void readFile(char* fileName, char* buffer) 
 {
 	char directory[512] ;
+	char map[512]; 
 	int i = 0;
 	readSector(directory, 2);
+	readSector(map, 1); 
 	for(i = 0; i < 512; i += 32)
 	{
 		int found = 1; 
@@ -154,10 +170,44 @@ void readFile(char* fileName, char* buffer)
 			break; 
 		}
 	}
+	writeSector(directory, 2); 
+	writeSector(map, 1); 
 	
 }
+/**
+	Take as input a filename and deletes that file 
+*/
+ void deleteFile(char* fileName) {
+	 char[512] directory, map; 
+	 int found = 1; 
+		int j = 0;
+	for(i = 0; i < 512; i += 32) {
+		int found = 1; 
+		int j = 0;
+		for(j = 0; j < 6; j++) 
+		{
+			if(fileName[j] != directory[i + j]) 
+			{
+				found = 0; 
+				break; 
+			}
+			// if the file name is less than 6 characters, break
+			if(fileName[j] == '\0')
+				break;
+		}
+		if(found) 
+		{
+			directory[i] = 0x00; 
+			for(int k = i + 6; k < i + 32; k++) {
+				map[directory[k]] = 0x0; 
+			}
+		}
+	}
+	
+ }
 
 /*
+
 	Takes as input the name of a program and the segment where you want it to run
 */
 void executeProgram(char* name, int segment)
