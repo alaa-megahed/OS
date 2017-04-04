@@ -33,9 +33,18 @@ int main ()
 
 	/*
 		Testing Task4
-	*/
+	
 	makeInterrupt21();
 	interrupt(0x21, 4, "shell\0", 0x2000, 0);
+*/
+	/*  Testing Task 2 in milestone 3
+	  */
+
+	char buffer[13312];
+makeInterrupt21();
+interrupt(0x21, 7, "messag\0", 0, 0); //delete messag
+interrupt(0x21, 3, "messag\0", buffer, 0); // try to read messag
+interrupt(0x21, 0, buffer, 0, 0); //print out the contents of buffer
 }
 
 void printString(char* s)
@@ -128,6 +137,12 @@ void handleInterrupt21(int ax, int bx, int cx, int dx) {
 	}
 	else if(ax == 5){
 		terminate();
+	}
+	else if(ax==6){
+		writeSector(bx,cx);
+	}
+	else if(ax==7){
+		deleteFile(bx);
 	}
 	else {
 		printString("Error");
@@ -234,3 +249,57 @@ void terminate()
 	interrupt(0x21, 4, shell, 0x2000, 0);
 }
 
+void writeSector(char* buffer, int sector) {
+	int AH = 3; 
+	int AL = 1; 
+	int CH = sector / 36 ;                //cylinder
+	int CL = mod(sector, 18) + 1;         //sector 
+	int DH = mod(sector / 18, 2);         //head 
+	int DL = 0;                           //device number, 0 for floppy disk 
+	interrupt(0x13,AH*256 + AL, buffer, CH*256 + CL, DH*256 + DL); 
+}
+
+void deleteFile(char* name){
+
+	char directory [512];
+	char map [512];
+
+	//loading the map and directory
+	readSector(map,1);
+	readSector(directory,2);
+	int i;
+
+ 	// Go through the directory trying to match the file name
+	for(i = 0; i < 512; i += 32)
+	{
+		int found = 1; 
+		int j = 0;
+		for(j = 0; j < 6; j++) 
+		{
+			if(fileName[j] != directory[i + j]) 
+			{
+				found = 0; 
+				break; 
+			}
+			// If the file name is less than 6 characters, break
+			if(fileName[j] == '\0')
+				break;
+		}
+
+		// Using the sector numbers in the directory, puting zero in map sectors corresponding to them
+		if(found) 
+		{
+			directory[i] = 0x00; 
+			int k = i + 6;
+			while(directory[k]) 
+			{
+				map[directory[k]+1] = 0x00;
+				k++;				 
+			}
+			writeSector(directory,2);
+			writeSector(map,1);
+			break;
+		}
+	}
+
+}
