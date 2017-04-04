@@ -5,6 +5,9 @@ void handleInterrupt21(int ax, int bx, int cx, int dx);
 int readFile(char*, char*); 
 int executeProgram(char* name, int segment);
 void terminate();
+void writeFile(char* name, char* buffer, int secNum);
+void deleteFile(char* name);
+void writeSector(char* buffer, int sector);
 
 int main () 
 {
@@ -144,6 +147,9 @@ void handleInterrupt21(int ax, int bx, int cx, int dx) {
 	else if(ax==7){
 		deleteFile(bx);
 	}
+	else if(ax==8){
+		writeFile(bx,cx,dx);
+	}
 	else {
 		printString("Error");
 	}
@@ -263,11 +269,11 @@ void deleteFile(char* name){
 
 	char directory [512];
 	char map [512];
-
+	int i= 0 ;
 	//loading the map and directory
 	readSector(map,1);
 	readSector(directory,2);
-	int i;
+	
 
  	// Go through the directory trying to match the file name
 	for(i = 0; i < 512; i += 32)
@@ -276,21 +282,22 @@ void deleteFile(char* name){
 		int j = 0;
 		for(j = 0; j < 6; j++) 
 		{
-			if(fileName[j] != directory[i + j]) 
+			if(name[j] != directory[i + j]) 
 			{
 				found = 0; 
 				break; 
 			}
 			// If the file name is less than 6 characters, break
-			if(fileName[j] == '\0')
+			if(name[j] == '\0')
 				break;
 		}
 
 		// Using the sector numbers in the directory, puting zero in map sectors corresponding to them
 		if(found) 
 		{
-			directory[i] = 0x00; 
 			int k = i + 6;
+			directory[i] = 0x00; 
+			
 			while(directory[k]) 
 			{
 				map[directory[k]+1] = 0x00;
@@ -303,3 +310,5 @@ void deleteFile(char* name){
 	}
 
 }
+
+
