@@ -60,7 +60,11 @@ void split(char* line)
 	else if(cmprstr(token[0],"execute"))
 	{
 		interrupt(0x21, 4, token[1], 0x2000, 0);	
+	} else if(cmprstr(token[0],"delete")) {
+		interrupt(0x21, 7, token[1], 0, 0); 
 	}
+	
+	
 	// If the command written wasn't vlaid, print out BAD COMMAND
 	else
 	{
