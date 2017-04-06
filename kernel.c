@@ -6,7 +6,9 @@ void handleInterrupt21(int ax, int bx, int cx, int dx);
 int readFile(char*, char*); 
 int executeProgram(char* name, int segment);
 void terminate();
-void deleteFile(char *); 
+// void writeFile(char* name, char* buffer, int secNum);
+void deleteFile(char* name);
+
 
 int main () 
 {
@@ -36,8 +38,8 @@ int main ()
 	
 		// Testing Task4
 	
-	makeInterrupt21();
-	interrupt(0x21, 4, "shell\0", 0x2000, 0);
+	makeInterrupt21();	
+	interrupt(0x21, 4, "shell\0", 0x3000, 0);
 
 
 	/*  Testing Task 2 in milestone 3
@@ -148,7 +150,9 @@ void handleInterrupt21(int ax, int bx, int cx, int dx) {
 	else if(ax==7){
 		deleteFile(bx);
 	}
-
+	// else if(ax==8){
+	// 	writeFile(bx,cx,dx);
+	// }
 	else {
 		printString("Error");
 	}
@@ -193,8 +197,9 @@ int readFile(char* fileName, char* buffer)
 			while(directory[k]) 
 			{
 				readSector(buffer + (count++) * 512, directory[k++]); 
+				count++; 
 			}
-			return 1;
+			return count;
 		}
 	}
 
@@ -301,7 +306,7 @@ void writeSector(char* buffer, int sector) {
 	interrupt(0x13,AH*256 + AL, buffer, CH*256 + CL, DH*256 + DL); 
 }
 
-void deleteFile(char* fileName){
+void deleteFile(char* name) {
 
 	char directory [512];
 	char map [512];
@@ -309,7 +314,6 @@ void deleteFile(char* fileName){
 	//loading the map and directory
 	readSector(map,1);
 	readSector(directory,2);
-	// int i;
 
  	// Go through the directory trying to match the file name
 	
@@ -319,13 +323,13 @@ void deleteFile(char* fileName){
 		int j = 0;
 		for(j = 0; j < 6; j++) 
 		{
-			if(fileName[j] != directory[i + j]) 
+			if(name[j] != directory[i + j]) 
 			{
 				found = 0; 
 				break; 
 			}
 			// If the file name is less than 6 characters, break
-			if(fileName[j] == '\0')
+			if(name[j] == '\0')
 				break;
 		}
 
@@ -346,3 +350,5 @@ void deleteFile(char* fileName){
 	}
 
 }
+
+
