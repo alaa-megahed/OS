@@ -41,13 +41,30 @@ int main ()
 	interrupt(0x21, 4, "shell\0", 0x2000, 0);
 */
 	/*  Testing Task 2 in milestone 3
-	  */
+	  
 
 	char buffer[13312];
 makeInterrupt21();
 interrupt(0x21, 7, "messag\0", 0, 0); //delete messag
 interrupt(0x21, 3, "messag\0", buffer, 0); // try to read messag
 interrupt(0x21, 0, buffer, 0, 0); //print out the contents of buffer
+*/
+	/* Testing Task 3 */
+
+	int i=0;
+char buffer1[13312];
+char buffer2[13312];
+buffer2[0]= 'h'; 
+buffer2[1]='e'; 
+buffer2[2]='l';
+ buffer2[3]='l';
+buffer2[4]= 'o';
+for(i=5; i<13312; i++) buffer2[i]=0x0;
+makeInterrupt21();
+interrupt(0x21,8, "testW\0", buffer2, 1); //write file testW
+interrupt(0x21,3, "testW\0", buffer1, 0); //read file testW
+interrupt(0x21,0, buffer1, 0, 0); // print out contents of testW
+
 }
 
 void printString(char* s)
@@ -312,3 +329,69 @@ void deleteFile(char* name){
 }
 
 
+void writeFile(char* name, char* buffer, int secNum)
+{
+
+	char directory [512];
+	char map [512];
+	int i =0;
+	int found =0;
+	//loading the map and directory
+	readSector(map,1);
+	readSector(directory,2);
+    
+    // find a free entry to write the file in the directory
+    for(i = 0; i < 512; i += 32)
+    {
+    		if (directory[i]==0x00)
+    		{
+    			int j = 0;
+    			int k=0;
+    			int l = i+6;
+    			int count =0;
+    			int f =i+6+secNum;
+    			//writing the name of the file in the directory entry
+				for(j = 0; j < 6; j++) 
+				{		
+					directory[i+j] = name[j];
+					
+				}
+
+				for(j=0 ; j< secNum ; j++)
+				{
+					for (k=0; k<512 ; k++)
+					{
+						if(map[k]==0x00)
+						{
+							map[k]=0xFF;
+							directory[l++] = k-1;
+							writeSector(buffer + (count++) * 512,k-1);
+							break;
+						}
+					}
+					if(j< secNum && k==512)
+					{
+						printString("There is no space in map");
+						return;
+					}
+					
+				}
+          		for(j=f, j<32 , j++)
+          		{
+          			directory[j] = 0x00;
+          		}
+
+                writeSector(map,1);
+                writeSector(directory,2);
+                found =1;
+                break;
+
+    		}
+    		
+    }
+    		if(!found)
+    		{
+        	printString("There is no space in directory");
+    		return;
+			}
+}
