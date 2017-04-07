@@ -116,7 +116,7 @@ void split(char* line)
 		char buffer[13312];  
 		int len, idx = 0; 
 		int numSec = 0;
-		int mod = 0;
+		int m = 0;
 
 		while(1) 
 		{
@@ -137,7 +137,7 @@ void split(char* line)
 		}
 		buffer[idx] = '\0';		
 		// interrupt(0x21, 0, buffer, 0, 0); 
-		mod = mod(idx + 1, 512);
+		m = mod(idx + 1, 512);
 		numSec = idx / 512;
 		if(mod != 0)
 			numSec++;
