@@ -41,6 +41,9 @@ void split(char* line)
 		}
 		
 		*(tmp + k) = '\0';
+		// interrupt(0x21, 0, "tmp\n", 0, 0);
+		// interrupt(0x21, 0, tmp, 0, 0);
+		// interrupt(0x21, 0, "\n", 0, 0);
 		(token[j]) = tmp;
 		tmp = "";
 		k = 0;
@@ -69,16 +72,19 @@ void split(char* line)
 	{
 		char* buffer;
 		buffer = ""; 
+		interrupt(0x21, 0, "token[0]\n", 0, 0);
 		interrupt(0x21, 0, token[0], 0, 0);
+		interrupt(0x21, 0, "token[1]\n", 0, 0);
 		interrupt(0x21, 0, token[1], 0, 0);
+		interrupt(0x21, 0, "token[2]\n", 0, 0);
 		interrupt(0x21, 0, token[2], 0, 0);
 		interrupt(0x21, 3, token[1], buffer, 0); //read file
-		interrupt(0x21, 0, "buffer", 0, 0);
-		interrupt(0x21, 0, buffer, 0, 0);
-		interrupt(0x21, 0, "read done", 0, 0);
+		// interrupt(0x21, 0, "buffer", 0, 0);
+		// interrupt(0x21, 0, buffer, 0, 0);
+		// interrupt(0x21, 0, "read done", 0, 0);
 		interrupt(0x21, 8, token[2], buffer, 3); //write file 	
 	}
-	else if(cmprstr(token[0], "dir")) 
+	else if(cmprstr(token[0], "dir\0")) 
 	{
 		char dir [512] ; 
 		char fileName[6]; 
