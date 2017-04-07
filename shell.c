@@ -22,30 +22,30 @@ int main()
 */
 void split(char* line)
 {
-	int i = 0, j = 0, k = 0;
-	char* token[5]; 
-	char* tmp;
-	while(*(line + i) != '\0')
+	int i = 0, j = 0, k = 0, m = 0, n = 0; 
+	char token[5][9];
+	for(m = 0; m < 5; m++) {
+		for(n = 0; n < 9; n++) {
+			token[m][n] = 0x00; 
+		}
+	} 
+	
+	while(*(line + i) != 0xA)
 	{
 		// Split the command into tokens, save them in the token array
 		while(*(line + i) != ' ') 
 		{
-			if(*(line + i) == '\0')
+			if(*(line + i) == 0xA)
 			{
 				i--;
 				break;
 			} 
-			*(tmp + k) = *(line + i);
+			token[j][k] = *(line + i);
 			k++;
 			i++;	
 		}
 		
-		*(tmp + k) = '\0';
-		// interrupt(0x21, 0, "tmp\n", 0, 0);
-		// interrupt(0x21, 0, tmp, 0, 0);
-		// interrupt(0x21, 0, "\n", 0, 0);
-		(token[j]) = tmp;
-		tmp = "";
+		token[j][k] = '\0';
 		k = 0;
 		i++;
 		j++;
@@ -72,12 +72,10 @@ void split(char* line)
 	{
 		char* buffer;
 		buffer = ""; 
-		interrupt(0x21, 0, "token[0]\n", 0, 0);
-		interrupt(0x21, 0, token[0], 0, 0);
-		interrupt(0x21, 0, "token[1]\n", 0, 0);
-		interrupt(0x21, 0, token[1], 0, 0);
-		interrupt(0x21, 0, "token[2]\n", 0, 0);
-		interrupt(0x21, 0, token[2], 0, 0);
+
+		// interrupt(0x21, 0, token[0], 0, 0);
+		// interrupt(0x21, 0, token[1], 0, 0);
+		// interrupt(0x21, 0, token[2], 0, 0);
 		interrupt(0x21, 3, token[1], buffer, 0); //read file
 		// interrupt(0x21, 0, "buffer", 0, 0);
 		// interrupt(0x21, 0, buffer, 0, 0);
@@ -88,25 +86,35 @@ void split(char* line)
 	{
 		char dir [512] ; 
 		char fileName[6]; 
-		int i; 	
-		interrupt(0x21, 2, 2, dir, 0); 
-		for(i = 0; i < 512; i+=32) {
+		int i;
+		interrupt(0x21, 2, dir, 2, 0); 
+		for(i = 0; i < 512; i+=32) 
+		{
 			int j; 
-			fileName[0] = '\0'; 
-		if(dir[j] != 0x0)
-			for(j = 0; j < 6; j++) {
-				if(dir[i + j] == '\0')
-					break; 
-				else 
-					fileName[j] = dir[i + j]; 
+			if(dir[j] != 0x0)
+			{
+				for(j = 0; j < 6; j++) 
+				{
+					if(dir[i + j] == '\0')
+					{
+						fileName[j] = '\0';
+						break; 
+					}
+					else 
+						fileName[j] = dir[i + j]; 
+				}
+				for (; j < 6; ++j)
+				{
+					fileName[j] = '\0';
+				}
+			// if(fileName[0] != '\0')
+				interrupt(0x21, 0, fileName, 0, 0); 
 			}
-			if(fileName[0] != '\0')
-			interrupt(0x21, 0, fileName, 0, 0); 
 		}
 	}
-	// If the command written wasn't vlaid, print out BAD COMMAND
 	else
 	{
+		interrupt(0x21, 0, token[0], 0, 0);					
 		interrupt(0x21, 0, "BAD COMMAND!\n", 0, 0);			
 	}
 }

@@ -7,6 +7,8 @@ int readFile(char*, char*);
 void writeFile(char* name, char* buffer, int secNum);
 int executeProgram(char* name, int segment);
 void terminate();
+void writeFile(char* name, char* buffer, int secNum);
+
 void deleteFile(char* name);
 
 int main () 
@@ -27,7 +29,14 @@ int main ()
 	// interrupt(0x21, 0, buffer, 0, 0); //print out the contents of buffer
 	
 
+		// Testing Task4
+	
+	makeInterrupt21();	
+	interrupt(0x21, 4, "shell\0", 0x2000, 0);
+
+
 	/* Testing Task 3 */
+
 
 	// int i=0;
 	// char buffer1[13312];
@@ -354,7 +363,7 @@ void writeFile(char* name, char* buffer, int secNum)
 				}
 				if(done < j + 1)
 				{
-					printString("There is no space in map");
+					// printString("There is no space in map");
 					return;
 				}
 			}
@@ -373,7 +382,7 @@ void writeFile(char* name, char* buffer, int secNum)
 	}
 	if(!found)
 	{
-		printString("There is no space in directory");
+		// printString("There is no space in directory");
 		return;
 	}
 }
