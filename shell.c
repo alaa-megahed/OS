@@ -85,13 +85,13 @@ void split(char* line)
 	else if(cmprstr(token[0], "dir\0")) 
 	{
 		char dir [512] ; 
-		char fileName[6]; 
+		char fileName[7]; 
 		int i;
 		interrupt(0x21, 2, dir, 2, 0); 
 		for(i = 0; i < 512; i+=32) 
 		{
 			int j; 
-			if(dir[j] != 0x0)
+			if(dir[j] != 0x00)
 			{
 				for(j = 0; j < 6; j++) 
 				{
@@ -103,14 +103,16 @@ void split(char* line)
 					else 
 						fileName[j] = dir[i + j]; 
 				}
-				for (; j < 6; ++j)
+				for (; j < 7; ++j)
 				{
 					fileName[j] = '\0';
 				}
 			// if(fileName[0] != '\0')
-				interrupt(0x21, 0, fileName, 0, 0); 
+				interrupt(0x21, 0, fileName, 0, 0);
+				interrupt(0x21, 0, " \0", 0, 0); 
 			}
 		}
+		interrupt(0x21, 0, "\n", 0, 0);
 	}
 	else
 	{
