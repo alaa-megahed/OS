@@ -40,15 +40,15 @@ int main ()
 	makeInterrupt21();
 	interrupt(0x21, 4, "shell\0", 0x2000, 0);
 */
-	/*  Testing Task 2 in milestone 3
+	  // Testing Task 2 in milestone 3
 	  
 
-	char buffer[13312];
-makeInterrupt21();
-interrupt(0x21, 7, "messag\0", 0, 0); //delete messag
-interrupt(0x21, 3, "messag\0", buffer, 0); // try to read messag
-interrupt(0x21, 0, buffer, 0, 0); //print out the contents of buffer
-*/
+// 	char buffer[13312];
+// makeInterrupt21();
+// interrupt(0x21, 7, "messag\0", 0, 0); //delete messag
+// interrupt(0x21, 3, "messag\0", buffer, 0); // try to read messag
+// interrupt(0x21, 0, buffer, 0, 0); //print out the contents of buffer
+
 	/* Testing Task 3 */
 
 	int i=0;
@@ -272,7 +272,8 @@ void terminate()
 	interrupt(0x21, 4, shell, 0x2000, 0);
 }
 
-void writeSector(char* buffer, int sector) {
+void writeSector(char* buffer, int sector) 
+{
 	int AH = 3; 
 	int AL = 1; 
 	int CH = sector / 36 ;                //cylinder
@@ -282,8 +283,8 @@ void writeSector(char* buffer, int sector) {
 	interrupt(0x13,AH*256 + AL, buffer, CH*256 + CL, DH*256 + DL); 
 }
 
-void deleteFile(char* name){
-
+void deleteFile(char* name)
+{
 	char directory [512];
 	char map [512];
 	int i= 0 ;
@@ -346,37 +347,43 @@ void writeFile(char* name, char* buffer, int secNum)
     		if (directory[i]==0x00)
     		{
     			int j = 0;
-    			int k=0;
-    			int l = i+6;
-    			int count =0;
-    			int f =i+6+secNum;
+    			int k = 0;
+    			int l = i + 6;
+    			int count = 0;
+    			int done = 0;
+    			int f = i + 6 + secNum;
     			//writing the name of the file in the directory entry
 				for(j = 0; j < 6; j++) 
 				{		
 					directory[i+j] = name[j];
-					
+					if(name[j] == '\0')
+						break;
+				}
+				for(; j < 6; j++)
+				{
+					directory[i+j] = 0x00;
 				}
 
-				for(j=0 ; j< secNum ; j++)
+				for(j = 0; j < secNum; j++)
 				{
-					for (k=0; k<512 ; k++)
+					for (k = 0; k < 512 ; k++)
 					{
 						if(map[k]==0x00)
 						{
 							map[k]=0xFF;
-							directory[l++] = k-1;
-							writeSector(buffer + (count++) * 512,k-1);
+							directory[l++] = k - 1;
+							done++;
+							writeSector(buffer + (count++) * 512, k - 1);
 							break;
 						}
 					}
-					if(j< secNum && k==512)
+					if(done < j + 1)
 					{
 						printString("There is no space in map");
 						return;
 					}
-					
 				}
-          		for(j=f, j<32 , j++)
+          		for(j = f; j < 32; j++)
           		{
           			directory[j] = 0x00;
           		}
@@ -389,9 +396,9 @@ void writeFile(char* name, char* buffer, int secNum)
     		}
     		
     }
-    		if(!found)
-    		{
-        	printString("There is no space in directory");
-    		return;
-			}
+    if(!found)
+    {
+        printString("There is no space in directory");
+    	return;
+	}
 }
