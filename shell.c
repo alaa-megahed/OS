@@ -86,14 +86,14 @@ void split(char* line)
 	else if(cmprstr(token[0], "dir")) 
 	{								
 		char dir [512] ; 
-		char fileName[6]; 
 
+		char fileName[7]; 
 		int i;
 		interrupt(0x21, 2, dir, 2, 0); 
 		for(i = 0; i < 512; i+=32) 
 		{
 			int j; 
-			if(dir[j] != 0x0)
+			if(dir[j] != 0x00)
 			{
 				for(j = 0; j < 6; j++) 
 				{
@@ -105,33 +105,39 @@ void split(char* line)
 					else 
 						fileName[j] = dir[i + j]; 
 				}
-				for (; j < 6; ++j)
+				for (; j < 7; ++j)
 				{
 					fileName[j] = '\0';
 				}
 			// if(fileName[0] != '\0')
-				interrupt(0x21, 0, fileName, 0, 0); 
+				interrupt(0x21, 0, fileName, 0, 0);
+				interrupt(0x21, 0, " \0", 0, 0); 
 			}
 		}
-	} else if (cmprstr(token[0], "create\0")) {
-		interrupt(0x21, 1, "Enter line:\n\0", 0, 0); 			
+				interrupt(0x21, 0, "\n", 0, 0);
+
+	} else if (cmprstr(token[0], "create\0")) {			
 		char * line;
 		char buffer[13312];  
 		int len, idx = 0; 
+		interrupt(0x21, 0, "Enter line:\n\0", 0, 0); 					
 		while(1) {
 			int i; 
-			interrupt(0x21, 1, "Enter line:\n\0", 0, 0); 			
+			interrupt(0x21, 0, "Enter line:\n\0", 0, 0); 			
 			interrupt(0x21, 1, line, 0, 0); 
-			if(line == '\0' || line == 0xd)
-				break; 
-			len = strlen(line); 
+			 
+			len = strlen(line);
+			if(len <= 1 || line == '\0' || line == 0xd || line == '\n')
+				break;
 			for(i = 0; i < len; i++) {
 				buffer[idx + i] = line[i]; 
-			}			
+				idx++; 
+			}
+			interrupt(0x21, 0, buffer, 0, 0); 			 			
 		}
-			interrupt(0x21, 1, buffer, 0, 0); 			
+		interrupt(0x21, 0, "out", 0, 0); 		
+		interrupt(0x21, 0, buffer, 0, 0); 			
 		
-		 
 	}
 	else
 	{
