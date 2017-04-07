@@ -50,6 +50,8 @@ void split(char* line)
 		tmp[k] = '\0';
  
 		for(m = 0; m < 9; m++) {
+			if(tmp[m] == '\0')
+				break; 
 			token[j][m] = tmp[m]; 
 			tmp[m] = 0x00; 
 		}
@@ -88,11 +90,12 @@ void split(char* line)
 		// interrupt(0x21, 0, "read done", 0, 0);
 		interrupt(0x21, 8, token[2], buffer, 3); //write file 	
 	}
-	else if(cmprstr(token[0], "dir\0")) 
-	{
+	else if(cmprstr(token[0], "dir")) 
+	{								
 		char dir [512] ; 
 		char fileName[6]; 
 		int i; 	
+		interrupt(0x21, 0, token[0], 0, 0);
 		interrupt(0x21, 2, 2, dir, 0); 
 		for(i = 0; i < 512; i+=32) {
 			int j; 
@@ -107,6 +110,24 @@ void split(char* line)
 			if(fileName[0] != '\0')
 			interrupt(0x21, 0, fileName, 0, 0); 
 		}
+	} else if (cmprstr(token[0], "create\0")) {
+		char * line;
+		char buffer[13312];  
+		int len, idx = 0; 
+		while(1) {
+			int i; 
+			interrupt(0x21, 1, "Enter line:\n\0", 0, 0); 			
+			interrupt(0x21, 1, line, 0, 0); 
+			if(line == '\0' || line == 0xd)
+				break; 
+			len = strlen(line); 
+			for(i = 0; i < len; i++) {
+				buffer[idx + i] = line[i]; 
+			}			
+		}
+			interrupt(0x21, 1, buffer, 0, 0); 			
+		
+		 
 	}
 	else
 	{
@@ -134,4 +155,13 @@ int cmprstr(char* str1,char* str2)
     if (noteq == 0 && str1[i] == '\0' && str2[i] == '\0')
          return 1;
     return 0;
+}
+int strlen(char* str) {
+	int len; 
+	len = 0; 
+	while(str[len] != '\0') {
+		len++; 
+	}
+	len++; 
+	return len; 
 }
