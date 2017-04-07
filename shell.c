@@ -46,9 +46,7 @@ void split(char* line)
 			k++;
 			i++;	
 		}
-
 		token[j][k] = '\0';
-
 		k = 0;
 		i++;
 		j++;
@@ -75,14 +73,7 @@ void split(char* line)
 	{
 		char* buffer;
 		buffer = ""; 
-
-		// interrupt(0x21, 0, token[0], 0, 0);
-		// interrupt(0x21, 0, token[1], 0, 0);
-		// interrupt(0x21, 0, token[2], 0, 0);
 		interrupt(0x21, 3, token[1], buffer, 0); //read file
-		// interrupt(0x21, 0, "buffer", 0, 0);
-		// interrupt(0x21, 0, buffer, 0, 0);
-		// interrupt(0x21, 0, "read done", 0, 0);
 		interrupt(0x21, 8, token[2], buffer, 3); //write file 	
 	}
 	else if(cmprstr(token[0], "dir")) 
@@ -116,7 +107,7 @@ void split(char* line)
 				interrupt(0x21, 0, " \0", 0, 0); 
 			}
 		}
-				interrupt(0x21, 0, "\n", 0, 0);
+		interrupt(0x21, 0, "\n", 0, 0);
 
 	} 
 	else if (cmprstr(token[0], "create\0")) 
@@ -126,7 +117,7 @@ void split(char* line)
 		int len, idx = 0; 
 		int numSec = 0;
 		int mod = 0;
-		
+
 		while(1) 
 		{
 			int i; 
@@ -134,27 +125,26 @@ void split(char* line)
 			interrupt(0x21, 1, line, 0, 0); 
 			 
 			len = strlen(line);
-			if(len <= 2)
+			if(len <= 1)
 				break;
-			for(i = 0; i < len - 1; i++) 
+			for(i = 0; i < len; i++) 
 			{
 				buffer[idx + i] = line[i]; 
 			}
 			buffer[idx + i] = "\n";
-			idx += len - 1;
+			idx += len;
 			line = "\0";	
 		}
 		buffer[idx] = '\0';		
-		interrupt(0x21, 0, buffer, 0, 0); 
+		// interrupt(0x21, 0, buffer, 0, 0); 
 		mod = mod(idx + 1, 512);
 		numSec = idx / 512;
 		if(mod != 0)
 			numSec++;
-		interrupt(0x21, 8, token[1], buffer, numSec); 			
+		interrupt(0x21, 8, token[1], buffer, 3); 			
 	}
 	else
 	{
-		interrupt(0x21, 0, token[0], 0, 0);					
 		interrupt(0x21, 0, "BAD COMMAND!\n", 0, 0);			
 	}
 }
@@ -185,7 +175,6 @@ int strlen(char* str) {
 	while(str[len] != '\0') {
 		len++; 
 	}
-	len++; 
 	return len; 
 }
 

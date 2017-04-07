@@ -363,7 +363,7 @@ void writeFile(char* name, char* buffer, int secNum)
 				}
 				if(done < j + 1)
 				{
-					// printString("There is no space in map");
+					printString("There is no space in map");
 					return;
 				}
 			}
@@ -382,7 +382,7 @@ void writeFile(char* name, char* buffer, int secNum)
 	}
 	if(!found)
 	{
-		// printString("There is no space in directory");
+		printString("There is no space in directory");
 		return;
 	}
 }
