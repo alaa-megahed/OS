@@ -32,37 +32,37 @@
 00000000000i[     ]   SB16 support: yes
 00000000000i[     ]   USB support: yes
 00000000000i[     ]   VGA extension support: vbe cirrus
-00000000000i[MEM0 ] allocated memory at 0x7f0f81d67010. after alignment, vector=0x7f0f81d68000
+00000000000i[MEM0 ] allocated memory at 0x7f587b41d010. after alignment, vector=0x7f587b41e000
 00000000000i[MEM0 ] 32.00MB
 00000000000i[MEM0 ] mem block size = 0x00100000, blocks=32
 00000000000i[MEM0 ] rom at 0xfffe0000/131072 ('/usr/share/bochs/BIOS-bochs-latest')
-00000000000i[     ] lt_dlhandle is 0x3ef66c0
+00000000000i[     ] lt_dlhandle is 0x3cb26c0
 00000000000i[PLGIN] loaded plugin libbx_hdimage.so
-00000000000i[     ] lt_dlhandle is 0x3ef7050
+00000000000i[     ] lt_dlhandle is 0x3cb3050
 00000000000i[PLGIN] loaded plugin libbx_pci.so
-00000000000i[     ] lt_dlhandle is 0x3ef7bd0
+00000000000i[     ] lt_dlhandle is 0x3cb3bd0
 00000000000i[PLGIN] loaded plugin libbx_pci2isa.so
-00000000000i[     ] lt_dlhandle is 0x3ef85e0
+00000000000i[     ] lt_dlhandle is 0x3cb45e0
 00000000000i[PLGIN] loaded plugin libbx_acpi.so
-00000000000i[     ] lt_dlhandle is 0x3ef8fe0
+00000000000i[     ] lt_dlhandle is 0x3cb4fe0
 00000000000i[PLGIN] loaded plugin libbx_cmos.so
-00000000000i[     ] lt_dlhandle is 0x3ef9920
+00000000000i[     ] lt_dlhandle is 0x3cb5920
 00000000000i[PLGIN] loaded plugin libbx_dma.so
-00000000000i[     ] lt_dlhandle is 0x3efa3b0
+00000000000i[     ] lt_dlhandle is 0x3cb63b0
 00000000000i[PLGIN] loaded plugin libbx_pic.so
-00000000000i[     ] lt_dlhandle is 0x3efac50
+00000000000i[     ] lt_dlhandle is 0x3cb6c50
 00000000000i[PLGIN] loaded plugin libbx_pit.so
-00000000000i[     ] lt_dlhandle is 0x3efb680
+00000000000i[     ] lt_dlhandle is 0x3cb7680
 00000000000i[PLGIN] loaded plugin libbx_floppy.so
-00000000000i[     ] lt_dlhandle is 0x3efc270
+00000000000i[     ] lt_dlhandle is 0x3cb8270
 00000000000i[PLGIN] loaded plugin libbx_vga.so
-00000000000i[     ] lt_dlhandle is 0x3efca00
+00000000000i[     ] lt_dlhandle is 0x3cb8a00
 00000000000i[PLGIN] loaded plugin libbx_ioapic.so
-00000000000i[     ] lt_dlhandle is 0x3efd440
+00000000000i[     ] lt_dlhandle is 0x3cb9440
 00000000000i[PLGIN] loaded plugin libbx_keyboard.so
-00000000000i[     ] lt_dlhandle is 0x3efdce0
+00000000000i[     ] lt_dlhandle is 0x3cb9ce0
 00000000000i[PLGIN] loaded plugin libbx_harddrv.so
-00000000000i[     ] lt_dlhandle is 0x3f0fdd0
+00000000000i[     ] lt_dlhandle is 0x3ccbdd0
 00000000000i[PLGIN] loaded plugin libbx_pci_ide.so
 00000000000i[PLGIN] init_dev of 'pci' plugin device by virtual method
 00000000000i[PCI  ] 440FX Host bridge present at device 0, function 0
@@ -70,7 +70,7 @@
 00000000000i[PCI  ] PIIX3 PCI-to-ISA bridge present at device 1, function 0
 00000000000i[PLGIN] init_dev of 'cmos' plugin device by virtual method
 00000000000i[CMOS ] Using local time for initial clock
-00000000000i[CMOS ] Setting initial clock to: Thu Apr  6 12:59:32 2017 (time0=1491476372)
+00000000000i[CMOS ] Setting initial clock to: Fri Apr  7 12:34:16 2017 (time0=1491561256)
 00000000000i[PLGIN] init_dev of 'dma' plugin device by virtual method
 00000000000i[DMA  ] channel 4 used by cascade
 00000000000i[PLGIN] init_dev of 'pic' plugin device by virtual method

@@ -6,7 +6,7 @@ void handleInterrupt21(int ax, int bx, int cx, int dx);
 int readFile(char*, char*); 
 int executeProgram(char* name, int segment);
 void terminate();
-// void writeFile(char* name, char* buffer, int secNum);
+void writeFile(char* name, char* buffer, int secNum);
 void deleteFile(char* name);
 
 
@@ -39,7 +39,7 @@ int main ()
 		// Testing Task4
 	
 	makeInterrupt21();	
-	interrupt(0x21, 4, "shell\0", 0x3000, 0);
+	interrupt(0x21, 4, "shell\0", 0x2000, 0);
 
 
 	/*  Testing Task 2 in milestone 3
@@ -52,19 +52,19 @@ interrupt(0x21, 0, buffer, 0, 0); //print out the contents of buffer
 */
 	/* Testing Task 3 */
 
-	int i=0;
-char buffer1[13312];
-char buffer2[13312];
-buffer2[0]= 'h'; 
-buffer2[1]='e'; 
-buffer2[2]='l';
- buffer2[3]='l';
-buffer2[4]= 'o';
-for(i=5; i<13312; i++) buffer2[i]=0x0;
-makeInterrupt21();
-interrupt(0x21,8, "testW\0", buffer2, 1); //write file testW
-interrupt(0x21,3, "testW\0", buffer1, 0); //read file testW
-interrupt(0x21,0, buffer1, 0, 0); // print out contents of testW
+// int i=0;
+// char buffer1[13312];
+// char buffer2[13312];
+// buffer2[0]= 'h'; 
+// buffer2[1]='e'; 
+// buffer2[2]='l';
+//  buffer2[3]='l';
+// buffer2[4]= 'o';
+// for(i=5; i<13312; i++) buffer2[i]=0x0;
+// makeInterrupt21();
+// interrupt(0x21,8, "messag\0", buffer2, 1); //write file testW
+// interrupt(0x21,3, "messag\0", buffer1, 0); //read file testW
+// interrupt(0x21,0, buffer1, 0, 0); // print out contents of testW
 
 
 }
@@ -166,9 +166,9 @@ void handleInterrupt21(int ax, int bx, int cx, int dx) {
 	else if(ax==7){
 		deleteFile(bx);
 	}
-	// else if(ax==8){
-	// 	writeFile(bx,cx,dx);
-	// }
+	else if(ax==8){
+		writeFile(bx,cx,dx);
+	}
 	else {
 		printString("Error");
 	}
@@ -415,7 +415,7 @@ void writeFile(char* name, char* buffer, int secNum)
 					}
 					
 				}
-          		for(j=f, j<32 , j++)
+          		for(j=f; j<32;  j++)
           		{
           			directory[j] = 0x00;
           		}
