@@ -47,6 +47,7 @@ void split(char* line)
 		j++;
 	}
 
+
 	// If command is view, load the desired file and print out its content
 	if(cmprstr(token[0],"view\0"))
 	{	
@@ -59,7 +60,35 @@ void split(char* line)
 	else if(cmprstr(token[0],"execute"))
 	{
 		interrupt(0x21, 4, token[1], 0x2000, 0);	
+	} else if(cmprstr(token[0],"delete")) {
+	
+		interrupt(0x21, 7, token[1], 0, 0); 
+	
+	} else if(cmprstr(token[0]), "copy") {
+		char* buffer; 
+		interrupt(0x21, 3, token[1], buffer, 0); //read file
+		// interrupt(0x21, 8, token[2], buffer, 3); //write file 	
 	}
+	else if(cmprstr(token[0], "dir")) {
+		char dir [512] ; 
+		char fileName[6]; 
+		int i; 	
+		interrupt(0x21, 2, 2, dir, 0); 
+		for(i = 0; i < 512; i+=32) {
+			int j; 
+			fileName[0] = '\0'; 
+		if(dir[j] != 0x0)
+			for(j = 0; j < 6; j++) {
+				if(dir[i + j] == '\0')
+					break; 
+				else 
+					fileName[j] = dir[i + j]; 
+			}
+			if(fileName[0] != '\0')
+			interrupt(0x21, 0, fileName, 0, 0); 
+		}
+	}
+	
 	// If the command written wasn't vlaid, print out BAD COMMAND
 	else
 	{
