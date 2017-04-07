@@ -1,5 +1,7 @@
 void split(char*);
 int cmprstr(char*, char*);
+int strlen(char*);
+int mod(int, int);
 
 int main()
 {
@@ -116,28 +118,39 @@ void split(char* line)
 		}
 				interrupt(0x21, 0, "\n", 0, 0);
 
-	} else if (cmprstr(token[0], "create\0")) {			
-		char * line;
+	} 
+	else if (cmprstr(token[0], "create\0")) 
+	{			
+		char* line = "\0";
 		char buffer[13312];  
 		int len, idx = 0; 
-		interrupt(0x21, 0, "Enter line:\n\0", 0, 0); 					
-		while(1) {
+		int numSec = 0;
+		int mod = 0;
+		
+		while(1) 
+		{
 			int i; 
 			interrupt(0x21, 0, "Enter line:\n\0", 0, 0); 			
 			interrupt(0x21, 1, line, 0, 0); 
 			 
 			len = strlen(line);
-			if(len <= 1 || line == '\0' || line == 0xd || line == '\n')
+			if(len <= 2)
 				break;
-			for(i = 0; i < len; i++) {
+			for(i = 0; i < len - 1; i++) 
+			{
 				buffer[idx + i] = line[i]; 
-				idx++; 
 			}
-			interrupt(0x21, 0, buffer, 0, 0); 			 			
+			buffer[idx + i] = "\n";
+			idx += len - 1;
+			line = "\0";	
 		}
-		interrupt(0x21, 0, "out", 0, 0); 		
-		interrupt(0x21, 0, buffer, 0, 0); 			
-		
+		buffer[idx] = '\0';		
+		interrupt(0x21, 0, buffer, 0, 0); 
+		mod = mod(idx + 1, 512);
+		numSec = idx / 512;
+		if(mod != 0)
+			numSec++;
+		interrupt(0x21, 8, token[1], buffer, numSec); 			
 	}
 	else
 	{
@@ -174,4 +187,8 @@ int strlen(char* str) {
 	}
 	len++; 
 	return len; 
+}
+
+int mod(int a, int b) {
+	return a - a/b * b; 
 }
