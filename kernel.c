@@ -1,72 +1,56 @@
 void printString(char*);
 void readString(char*);
-void readSector(char* buffer, int sector);  
-void writeSector(char* buffer, int sector); 
+void readSector(char* buffer, int sector); 
+void writeSector(char* buffer, int sector);  
 void handleInterrupt21(int ax, int bx, int cx, int dx); 
 int readFile(char*, char*); 
+void writeFile(char* name, char* buffer, int secNum);
 int executeProgram(char* name, int segment);
 void terminate();
 void writeFile(char* name, char* buffer, int secNum);
-void deleteFile(char* name);
 
+void deleteFile(char* name);
 
 int main () 
 {
-	// /* 
-	// 	Testing Task1
-	// */ 
-	// char buffer[13312]; /*this is the maximum size of a file*/
-	// makeInterrupt21();
-	// interrupt(0x21, 3, "messag\0", buffer, 0); /*read the file into buffer*/
-	// interrupt(0x21, 0, buffer, 0, 0); /*print out the file*/
-	// while(1); /*hang up*/
+	/*
+		Testing Task4 M2
+	*/
+	makeInterrupt21();
+	interrupt(0x21, 4, "shell\0", 0x2000, 0);
 
-	// /*
-	// 	Testing Task2
-	// */
-	// makeInterrupt21();
-	// interrupt(0x21, 4, "tstprg\0", 0x2000, 0);
-	// while(1);
 
-	// /* 
-	// 	Testing Task3
-	// */
-	// makeInterrupt21();
-	// interrupt(0x21, 4, "tstpr2\0", 0x2000, 0);
-	// while(1);
+	/*  Testing Task 2 in milestone 3 */
 
+	// char buffer[13312];
+	// makeInterrupt21();
+	// interrupt(0x21, 7, "messag\0", 0, 0); //delete messag
+	// interrupt(0x21, 3, "messag\0", buffer, 0); // try to read messag
+	// interrupt(0x21, 0, buffer, 0, 0); //print out the contents of buffer
 	
+
 		// Testing Task4
 	
 	makeInterrupt21();	
 	interrupt(0x21, 4, "shell\0", 0x2000, 0);
 
 
-	/*  Testing Task 2 in milestone 3
-	  
-	char buffer[13312];
-makeInterrupt21();
-interrupt(0x21, 7, "messag\0", 0, 0); //delete messag
-interrupt(0x21, 3, "messag\0", buffer, 0); // try to read messag
-interrupt(0x21, 0, buffer, 0, 0); //print out the contents of buffer
-*/
 	/* Testing Task 3 */
 
-// int i=0;
-// char buffer1[13312];
-// char buffer2[13312];
-// buffer2[0]= 'h'; 
-// buffer2[1]='e'; 
-// buffer2[2]='l';
-//  buffer2[3]='l';
-// buffer2[4]= 'o';
-// for(i=5; i<13312; i++) buffer2[i]=0x0;
-// makeInterrupt21();
-// interrupt(0x21,8, "messag\0", buffer2, 1); //write file testW
-// interrupt(0x21,3, "messag\0", buffer1, 0); //read file testW
-// interrupt(0x21,0, buffer1, 0, 0); // print out contents of testW
 
-
+	// int i=0;
+	// char buffer1[13312];
+	// char buffer2[13312];
+	// buffer2[0]= 'h'; 
+	// buffer2[1]='e'; 
+	// buffer2[2]='l';
+	// buffer2[3]='l';
+	// buffer2[4]= 'o';
+	// for(i=5; i<13312; i++) buffer2[i]=0x0;
+	// makeInterrupt21();
+	// interrupt(0x21,8, "testW\0", buffer2, 1); //write file testW
+	// interrupt(0x21,3, "testW\0", buffer1, 0); //read file testW
+	// interrupt(0x21,0, buffer1, 0, 0); // print out contents of testW
 }
 
 void printString(char* s)
@@ -181,14 +165,11 @@ int readFile(char* fileName, char* buffer)
 {
 	// Load the directory sector into a 512 byte character array using readSector
 	char directory[512] ;
-	char map[512]; 
 	int i = 0;
 	char fail[16];
 	readSector(directory, 2);
-	readSector(map, 1); 
 
 	// Go through the directory trying to match the file name
-
 	for(i = 0; i < 512; i += 32)
 	{
 		int found = 1; 
@@ -213,12 +194,10 @@ int readFile(char* fileName, char* buffer)
 			while(directory[k]) 
 			{
 				readSector(buffer + (count++) * 512, directory[k++]); 
-				count++; 
 			}
-			return count;
+			return 1;
 		}
 	}
-
 	// Print failure message if file not found
 	fail[0]='F';
 	fail[1]='I';
@@ -239,42 +218,9 @@ int readFile(char* fileName, char* buffer)
 	fail[16]='\0';
 	interrupt(0x21, 0, fail, 0, 0);
 	return 2;
-
 }
-/**
-	Take as input a filename and deletes that file 
-*/
-//  void deleteFile(char* fileName) {
-// 	 char[512] directory, map; 
-// 	 int found = 1; 
-// 		int j = 0;
-// 	for(i = 0; i < 512; i += 32) {
-// 		int found = 1; 
-// 		int j = 0;
-// 		for(j = 0; j < 6; j++) 
-// 		{
-// 			if(fileName[j] != directory[i + j]) 
-// 			{
-// 				found = 0; 
-// 				break; 
-// 			}
-// 			// if the file name is less than 6 characters, break
-// 			if(fileName[j] == '\0')
-// 				break;
-// 		}
-// 		if(found) 
-// 		{
-// 			directory[i] = 0x00; 
-// 			for(int k = i + 6; k < i + 32; k++) {
-// 				map[directory[k]] = 0x0; 
-// 			}
-// 		}
-// 	}
-	
-//  }
 
 /*
-
 	Takes as input the name of a program and the segment where you want it to run
 */
 int executeProgram(char* name, int segment)
@@ -312,7 +258,8 @@ void terminate()
 	interrupt(0x21, 4, shell, 0x2000, 0);
 }
 
-void writeSector(char* buffer, int sector) {
+void writeSector(char* buffer, int sector) 
+{
 	int AH = 3; 
 	int AL = 1; 
 	int CH = sector / 36 ;                //cylinder
@@ -322,8 +269,8 @@ void writeSector(char* buffer, int sector) {
 	interrupt(0x13,AH*256 + AL, buffer, CH*256 + CL, DH*256 + DL); 
 }
 
-void deleteFile(char* name) {
-
+void deleteFile(char* name)
+{
 	char directory [512];
 	char map [512];
 	int i = 0; 
@@ -332,7 +279,7 @@ void deleteFile(char* name) {
 	readSector(directory,2);
 
  	// Go through the directory trying to match the file name
-	
+
 	for(; i < 512; i += 32)
 	{
 		int found = 1; 
@@ -351,26 +298,25 @@ void deleteFile(char* name) {
 
 		// Using the sector numbers in the directory, puting zero in map sectors corresponding to them
 		if(found) 
-		{	int k; 
-			directory[i] = 0x00; 
-			k = i + 6;
-			while(directory[k]) 
-			{
-				map[directory[k]+1] = 0x00;
-				k++;				 
+			{	int k; 
+				directory[i] = 0x00; 
+				k = i + 6;
+				while(directory[k]) 
+				{
+					map[directory[k]+1] = 0x00;
+					k++;				 
+				}
+				writeSector(directory,2);
+				writeSector(map,1);
+				break;
 			}
-			writeSector(directory,2);
-			writeSector(map,1);
-			break;
 		}
-	}
 
-}
+	}
 
 
 void writeFile(char* name, char* buffer, int secNum)
 {
-
 	char directory [512];
 	char map [512];
 	int i =0;
@@ -378,59 +324,65 @@ void writeFile(char* name, char* buffer, int secNum)
 	//loading the map and directory
 	readSector(map,1);
 	readSector(directory,2);
-    
+
     // find a free entry to write the file in the directory
-    for(i = 0; i < 512; i += 32)
-    {
-    		if (directory[i]==0x00)
-    		{
-    			int j = 0;
-    			int k=0;
-    			int l = i+6;
-    			int count =0;
-    			int f =i+6+secNum;
-    			//writing the name of the file in the directory entry
-				for(j = 0; j < 6; j++) 
-				{		
-					directory[i+j] = name[j];
-					
-				}
-
-				for(j=0 ; j< secNum ; j++)
-				{
-					for (k=0; k<512 ; k++)
-					{
-						if(map[k]==0x00)
-						{
-							map[k]=0xFF;
-							directory[l++] = k-1;
-							writeSector(buffer + (count++) * 512,k-1);
-							break;
-						}
-					}
-					if(j< secNum && k==512)
-					{
-						printString("There is no space in map");
-						return;
-					}
-					
-				}
-          		for(j=f; j<32;  j++)
-          		{
-          			directory[j] = 0x00;
-          		}
-
-                writeSector(map,1);
-                writeSector(directory,2);
-                found =1;
-                break;
-
-    		}
-    		
-    }
-    		if(!found)
-    		{
-        	printString("There is no space in directory");
-    		return;
+	for(i = 0; i < 512; i += 32)
+	{
+		if (directory[i]==0x00)
+		{
+			int j = 0;
+			int k = 0;
+			int l = i + 6;
+			int count = 0;
+			int done = 0;
+			int f = i + 6 + secNum;
+    		//writing the name of the file in the directory entry
+			for(j = 0; j < 6; j++) 
+			{		
+				directory[i+j] = name[j];
+				if(name[j] == '\0')
+					break;
 			}
+			for(; j < 6; j++)
+			{
+				directory[i+j] = 0x00;
+			}
+
+			for(j = 0; j < secNum; j++)
+			{
+				for (k = 0; k < 512 ; k++)
+				{
+					if(map[k]==0x00)
+					{
+						map[k]=0xFF;
+						directory[l++] = k - 1;
+						done++;
+						writeSector(buffer + (count++) * 512, k - 1);
+						break;
+					}
+				}
+				if(done < j + 1)
+				{
+					// printString("There is no space in map");
+					return;
+				}
+			}
+			for(j = f; j < 32; j++)
+			{
+				directory[j] = 0x00;
+			}
+
+			writeSector(map,1);
+			writeSector(directory,2);
+			found =1;
+			break;
+
+		}
+
+	}
+	if(!found)
+	{
+		// printString("There is no space in directory");
+		return;
+	}
 }
