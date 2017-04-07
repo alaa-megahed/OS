@@ -139,9 +139,9 @@ void split(char* line)
 		// interrupt(0x21, 0, buffer, 0, 0); 
 		m = mod(idx + 1, 512);
 		numSec = idx / 512;
-		if(mod != 0)
+		if(m != 0)
 			numSec++;
-		interrupt(0x21, 8, token[1], buffer, 3); 			
+		interrupt(0x21, 8, token[1], buffer, numSec); 			
 	}
 	else
 	{
