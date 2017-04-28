@@ -46,24 +46,23 @@ int main ()
 		stackP[currentProcess] = sp; 
 		i = currentProcess + 1;
 		counter = 0;
-
-			while(counter < 8) 
-			{
-				if(active[i] == 1)
-				{	
-					printString("quantum2..."); 
-					break;
-				}	 
-				i++;
-				counter++; 
-				if(i == 8)
-					i = 0; 
-			}
-			currentProcess = i;
-			segment = (currentProcess + 2) * 4096;
-			sp = stackP[currentProcess]; 
-			restoreDataSegment(); 
-			returnFromTimer(segment, sp); 
+		while(counter < 8) 
+		{
+			if(active[i] == 1)
+			{	
+				printString("quantum2..."); 
+				break;
+			}	 
+			i++;
+			counter++; 
+			if(i == 8)
+				i = 0; 
+		}
+		currentProcess = i;
+		segment = (currentProcess + 2) * 4096;
+		sp = stackP[currentProcess]; 
+		restoreDataSegment(); 
+		returnFromTimer(segment, sp); 
 	}
 	else
 	{
@@ -259,6 +258,7 @@ int executeProgram(char* name)
 			break; 
 		}
 	}
+	active[i] = 1; 
 	restoreDataSegment(); 
 
 	if(found == 2)
@@ -270,10 +270,7 @@ int executeProgram(char* name)
 	}
 	// Jump to the program after setting the registers and stack pointer to the appropriate values
 	// using the assemply function launchProgram
-
-	setKernelDataSegment(); 
-	active[i] = 1; 
-	restoreDataSegment(); 
+	 
 	initializeProgram(segment);
 	
 
