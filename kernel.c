@@ -10,6 +10,7 @@ void terminate();
 void writeFile(char* name, char* buffer, int secNum);
 void handleTimerInterrupt(int segment, int sp); 
 void deleteFile(char* name);
+void killProcess(int processNum);
 
 //process table 
 int stackP[8]; 
@@ -170,6 +171,9 @@ void handleInterrupt21(int ax, int bx, int cx, int dx) {
 	else if(ax==8){
 		writeFile(bx,cx,dx);
 	}
+	else if(ax==9){
+ 	   killProcess(bx);
+	}
 	else {
 		printString("Error");
 	}
@@ -251,8 +255,7 @@ int executeProgram(char* name)
  
 	setKernelDataSegment(); 
 	for(i = 0; i < 8; i++) { //checking for empty space for program 
-		if(active[i] == 0) {
-		
+		if(active[i] == 0) {	
 			segment = (i + 2) * 4096;
 			break; 
 		}
@@ -423,4 +426,10 @@ void writeFile(char* name, char* buffer, int secNum)
 		printString("There is no space in directory");
 		return;
 	}
+}
+
+void killProcess(int processNum){
+	setKernelDataSegment(); 
+	active[processNum] = 0 ;
+	restoreDataSegment(); 
 }
