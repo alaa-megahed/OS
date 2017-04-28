@@ -31,33 +31,45 @@ int main ()
 	interrupt(0x21, 4, "hello1\0", 0, 0);
 	interrupt(0x21, 4, "hello2\0", 0, 0);
 	while(1){}
-
 }
+
  void handleTimerInterrupt(int segment, int sp) {
 	int i;
+	int counter;
+	setKernelDataSegment(); 
 	quantum++; 
-	currentProcess = segment / 4096 - 2; 
-	if(quantum == 100) {
-	quantum = 0; 
-	
-	stackP[currentProcess] = sp; 
-	i = currentProcess + 1;  
-		while(1) {
-			if(active[i] == 0)
-			{	
-				printString("quantum"); 
-				break;
-			}	 
-			i++; 
-			if(i == 8)
-				i = 0; 
-		}
-		currentProcess = i;  
-		returnFromTimer((currentProcess + 2) * 4096, stackP[currentProcess]); 
+	if(quantum == 100) 
+	{
+		currentProcess = (segment / 4096) - 2; 
+		printString("quantum"); 
+		quantum = 0; 
+		stackP[currentProcess] = sp; 
+		i = currentProcess + 1;
+		counter = 0;
+
+			while(counter < 8) 
+			{
+				if(active[i] == 1)
+				{	
+					printString("quantum2..."); 
+					break;
+				}	 
+				i++;
+				counter++; 
+				if(i == 8)
+					i = 0; 
+			}
+			currentProcess = i;
+			segment = (currentProcess + 2) * 4096;
+			sp = stackP[currentProcess]; 
+			restoreDataSegment(); 
+			returnFromTimer(segment, sp); 
 	}
-	 else 
-	  returnFromTimer(segment, sp); 
-	 
+	else
+	{
+		restoreDataSegment(); 
+		returnFromTimer(segment, sp); 
+	}	 
  }
 
 void printString(char* s)
@@ -259,11 +271,12 @@ int executeProgram(char* name)
 	// Jump to the program after setting the registers and stack pointer to the appropriate values
 	// using the assemply function launchProgram
 
-	initializeProgram(segment);
-	
 	setKernelDataSegment(); 
 	active[i] = 1; 
 	restoreDataSegment(); 
+	initializeProgram(segment);
+	
+
 
 
 	return 1;
