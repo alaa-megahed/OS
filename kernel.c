@@ -274,9 +274,6 @@ int executeProgram(char* name)
 	// using the assemply function launchProgram
 	 
 	initializeProgram(segment);
-	
-
-
 
 	return 1;
 }
@@ -431,5 +428,6 @@ void writeFile(char* name, char* buffer, int secNum)
 void killProcess(int processNum){
 	setKernelDataSegment(); 
 	active[processNum] = 0 ;
+	stackP[processNum] = 0xff00; 
 	restoreDataSegment(); 
 }
