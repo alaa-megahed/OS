@@ -43,7 +43,10 @@ int main ()
 	i = currentProcess + 1;  
 		while(1) {
 			if(active[i] == 0)
-				break; 
+			{	
+				printString("quantum"); 
+				break;
+			}	 
 			i++; 
 			if(i == 8)
 				i = 0; 
