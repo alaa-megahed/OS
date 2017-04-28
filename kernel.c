@@ -20,7 +20,7 @@ int quantum;
 int main () 
 {	int i; 
 	for(i = 0; i < 8; i++) {
-		stackP[i] = 0xfff; 
+		stackP[i] = 0xff00; 
 		active[i] = 0; 
 	}
 	currentProcess = 0;
@@ -35,20 +35,21 @@ int main ()
  void handleTimerInterrupt(int segment, int sp) {
 	int i;
 	quantum++; 
-
+	currentProcess = segment / 4096 - 2; 
 	if(quantum == 100) {
-		quantum = 0; 
-	printString("quantum");
+	quantum = 0; 
+	
 	stackP[currentProcess] = sp; 
 	i = currentProcess + 1;  
-		while(active[i]) {
+		while(1) {
+			if(active[i] == 0)
+				break; 
 			i++; 
 			if(i == 8)
 				i = 0; 
 		}
-		currentProcess = i; 
-		// set active[i] = 1 ??
-		// returnFromTimer((currentProcess + 2) * 0x1000, stackP[currentProcess]); 
+		currentProcess = i;  
+		returnFromTimer((currentProcess + 2) * 4096, stackP[currentProcess]); 
 	}
 	 else 
 	  returnFromTimer(segment, sp); 
@@ -237,9 +238,8 @@ int executeProgram(char* name)
 	setKernelDataSegment(); 
 	for(i = 0; i < 8; i++) { //checking for empty space for program 
 		if(active[i] == 0) {
-			printString(buffer);
-			active[i] = 1; 
-			segment = (i + 2) * 0x1000;
+		
+			segment = (i + 2) * 4096;
 			break; 
 		}
 	}
@@ -254,7 +254,14 @@ int executeProgram(char* name)
 	}
 	// Jump to the program after setting the registers and stack pointer to the appropriate values
 	// using the assemply function launchProgram
+
 	initializeProgram(segment);
+	
+	setKernelDataSegment(); 
+	active[i] = 1; 
+	restoreDataSegment(); 
+
+
 	return 1;
 }
 
