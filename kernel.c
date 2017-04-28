@@ -16,11 +16,12 @@ int stackP[8];
 int active[8]; 
 
 int currentProcess; 
-int quantum; 
+int quantum;
+
 int main () 
 {	int i; 
 	for(i = 0; i < 8; i++) {
-		stackP[i] = 0xfff; 
+		stackP[i] = 0xff00; 
 		active[i] = 0; 
 	}
 	currentProcess = 0;
