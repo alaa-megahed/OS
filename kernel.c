@@ -28,8 +28,9 @@ int main ()
 	quantum = 0;  
 	makeTimerInterrupt();
 	makeInterrupt21();  
-	interrupt(0x21, 4, "hello1\0", 0, 0);
-	interrupt(0x21, 4, "hello2\0", 0, 0);
+	// interrupt(0x21, 4, "hello1\0", 0, 0);
+	// interrupt(0x21, 4, "hello2\0", 0, 0);
+	interrupt(0x21, 4, "shell\0", 0, 0);
 	while(1){}
 }
 
@@ -41,7 +42,6 @@ int main ()
 	if(quantum == 100) 
 	{
 		currentProcess = (segment / 4096) - 2; 
-		printString("quantum"); 
 		quantum = 0; 
 		stackP[currentProcess] = sp; 
 		i = currentProcess + 1;
@@ -50,7 +50,6 @@ int main ()
 		{
 			if(active[i] == 1)
 			{	
-				printString("quantum2..."); 
 				break;
 			}	 
 			i++;

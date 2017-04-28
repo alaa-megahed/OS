@@ -6,17 +6,21 @@ int mod(int, int);
 int main()
 {
 	char* line = "\0";
-	// Print "SHELL> " on the screen
-	interrupt(0x21, 0, "SHELL> ", 0, 0);
-	// Wait for input
-	while(*line == '\0')
+	while(1)
 	{
-		interrupt(0x21, 1, line, 0, 0);
-	}
-	// Split the input command, and execute it
-	split(line); 
-	// Terminate
-	interrupt(0x21, 5, 0, 0);	
+		// Print "SHELL> " on the screen
+		interrupt(0x21, 0, "SHELL> ", 0, 0);
+		// Wait for input
+		while(*line == '\0')
+		{
+			interrupt(0x21, 1, line, 0, 0);
+		}
+		// Split the input command, and execute it
+		split(line);
+		line[0] = '\0';
+		// Terminate
+		// interrupt(0x21, 5, 0, 0);
+	}	
 }
 
 /*
@@ -63,7 +67,7 @@ void split(char* line)
 	// If command is execute, execute the desired program
 	else if(cmprstr(token[0],"execute\0"))
 	{
-		interrupt(0x21, 4, token[1], 0x2000, 0);	
+		interrupt(0x21, 4, token[1], 0, 0);	
 	}
 	else if(cmprstr(token[0],"delete\0")) 
 	{
