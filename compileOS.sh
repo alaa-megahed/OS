@@ -11,6 +11,9 @@ dd if=dir.img of=floppya.img bs=512 count=1 seek=2 conv=notrunc
 ./loadFile tstprg
 ./loadFile tstpr2
 ./loadFile message.txt
-bochs -f config.bxrc
+./loadFile hello1
+./loadFile hello2
+./loadFile phello
+# bochs -f config.bxrc
 
 

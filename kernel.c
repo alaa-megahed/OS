@@ -8,50 +8,68 @@ void writeFile(char* name, char* buffer, int secNum);
 int executeProgram(char* name, int segment);
 void terminate();
 void writeFile(char* name, char* buffer, int secNum);
-
+void handleTimerInterrupt(int segment, int sp); 
 void deleteFile(char* name);
+void killProcess(int processNum);
+
+//process table 
+int stackP[8]; 
+int active[8]; 
+
+int currentProcess; 
+int quantum;
 
 int main () 
-{
-	/*
-		Testing Task4 M2
-	*/
-	makeInterrupt21();
-	interrupt(0x21, 4, "shell\0", 0x2000, 0);
-
-
-	/*  Testing Task 2 in milestone 3 */
-
-	// char buffer[13312];
-	// makeInterrupt21();
-	// interrupt(0x21, 7, "messag\0", 0, 0); //delete messag
-	// interrupt(0x21, 3, "messag\0", buffer, 0); // try to read messag
-	// interrupt(0x21, 0, buffer, 0, 0); //print out the contents of buffer
-	
-
-		// Testing Task4
-	
-	makeInterrupt21();	
-	interrupt(0x21, 4, "shell\0", 0x2000, 0);
-
-
-	/* Testing Task 3 */
-
-
-	// int i=0;
-	// char buffer1[13312];
-	// char buffer2[13312];
-	// buffer2[0]= 'h'; 
-	// buffer2[1]='e'; 
-	// buffer2[2]='l';
-	// buffer2[3]='l';
-	// buffer2[4]= 'o';
-	// for(i=5; i<13312; i++) buffer2[i]=0x0;
-	// makeInterrupt21();
-	// interrupt(0x21,8, "testW\0", buffer2, 1); //write file testW
-	// interrupt(0x21,3, "testW\0", buffer1, 0); //read file testW
-	// interrupt(0x21,0, buffer1, 0, 0); // print out contents of testW
+{	int i; 
+	for(i = 0; i < 8; i++) {
+		stackP[i] = 0xff00; 
+		active[i] = 0; 
+	}
+	currentProcess = 0;
+	quantum = 0;  
+	makeTimerInterrupt();
+	makeInterrupt21();  
+	// interrupt(0x21, 4, "hello1\0", 0, 0);
+	// interrupt(0x21, 4, "hello2\0", 0, 0);
+	interrupt(0x21, 4, "shell\0", 0, 0);
+	while(1){}
 }
+
+ void handleTimerInterrupt(int segment, int sp) {
+	int i;
+	int counter;
+	setKernelDataSegment(); 
+	quantum++; 
+	if(quantum == 100) 
+	{
+		currentProcess = (segment / 4096) - 2; 
+		quantum = 0; 
+		stackP[currentProcess] = sp; 
+		i = currentProcess + 1;
+		counter = 0;
+		while(counter < 8) 
+		{
+			if(active[i] == 1)
+			{	
+				break;
+			}	 
+			i++;
+			counter++; 
+			if(i == 8)
+				i = 0; 
+		}
+		currentProcess = i;
+		segment = (currentProcess + 2) * 4096;
+		sp = stackP[currentProcess]; 
+		restoreDataSegment(); 
+		returnFromTimer(segment, sp); 
+	}
+	else
+	{
+		restoreDataSegment(); 
+		returnFromTimer(segment, sp); 
+	}	 
+ }
 
 void printString(char* s)
 {
@@ -139,7 +157,7 @@ void handleInterrupt21(int ax, int bx, int cx, int dx) {
 		readFile(bx, cx);
 	}
 	else if(ax == 4){
-		executeProgram(bx, cx);
+		executeProgram(bx);
 	}
 	else if(ax == 5){
 		terminate();
@@ -152,6 +170,9 @@ void handleInterrupt21(int ax, int bx, int cx, int dx) {
 	}
 	else if(ax==8){
 		writeFile(bx,cx,dx);
+	}
+	else if(ax==9){
+ 	   killProcess(bx);
 	}
 	else {
 		printString("Error");
@@ -223,12 +244,25 @@ int readFile(char* fileName, char* buffer)
 /*
 	Takes as input the name of a program and the segment where you want it to run
 */
-int executeProgram(char* name, int segment)
-{
+int executeProgram(char* name)
+{	
 	char buffer[13312];
 	int i = 0;
+	int segment = 0; 
+	
 	// Loading the program into a buffer
 	int found = readFile(name, buffer);
+ 
+	setKernelDataSegment(); 
+	for(i = 0; i < 8; i++) { //checking for empty space for program 
+		if(active[i] == 0) {	
+			segment = (i + 2) * 4096;
+			break; 
+		}
+	}
+	active[i] = 1; 
+	restoreDataSegment(); 
+
 	if(found == 2)
 		return 2;
 	// Transferring the program into the bottom of the segment where you want it to run
@@ -238,7 +272,9 @@ int executeProgram(char* name, int segment)
 	}
 	// Jump to the program after setting the registers and stack pointer to the appropriate values
 	// using the assemply function launchProgram
-	launchProgram(segment);
+	 
+	initializeProgram(segment);
+
 	return 1;
 }
 
@@ -246,16 +282,18 @@ int executeProgram(char* name, int segment)
 	Launch a new shell
 */
 void terminate()
-{
-	// while(1);
-	char shell[6];
-	shell[0]='s';
-	shell[1]='h';
-	shell[2]='e';
-	shell[3]='l';
-	shell[4]='l';
-	shell[5]='\0';
-	interrupt(0x21, 4, shell, 0x2000, 0);
+{	setKernelDataSegment(); 
+	active[currentProcess] = 0; 
+	restoreDataSegment(); 
+	while(1);
+	// char shell[6];
+	// shell[0]='s';
+	// shell[1]='h';
+	// shell[2]='e';
+	// shell[3]='l';
+	// shell[4]='l';
+	// shell[5]='\0';
+	// interrupt(0x21, 4, shell, 0x2000, 0);
 }
 
 void writeSector(char* buffer, int sector) 
@@ -385,4 +423,11 @@ void writeFile(char* name, char* buffer, int secNum)
 		printString("There is no space in directory");
 		return;
 	}
+}
+
+void killProcess(int processNum){
+	setKernelDataSegment(); 
+	active[processNum] = 0 ;
+	stackP[processNum] = 0xff00; 
+	restoreDataSegment(); 
 }

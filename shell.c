@@ -3,20 +3,25 @@ int cmprstr(char*, char*);
 int strlen(char*);
 int mod(int, int);
 
+
 int main()
 {
 	char* line = "\0";
-	// Print "SHELL> " on the screen
-	interrupt(0x21, 0, "SHELL> ", 0, 0);
-	// Wait for input
-	while(*line == '\0')
+	while(1)
 	{
-		interrupt(0x21, 1, line, 0, 0);
-	}
-	// Split the input command, and execute it
-	split(line); 
-	// Terminate
-	interrupt(0x21, 5, 0, 0);	
+		// Print "SHELL> " on the screen
+		interrupt(0x21, 0, "SHELL> ", 0, 0);
+		// Wait for input
+		while(*line == '\0')
+		{
+			interrupt(0x21, 1, line, 0, 0);
+		}
+		// Split the input command, and execute it
+		split(line);
+		line[0] = '\0';
+		// Terminate
+		// interrupt(0x21, 5, 0, 0);
+	}	
 }
 
 /*
@@ -63,7 +68,7 @@ void split(char* line)
 	// If command is execute, execute the desired program
 	else if(cmprstr(token[0],"execute\0"))
 	{
-		interrupt(0x21, 4, token[1], 0x2000, 0);	
+		interrupt(0x21, 4, token[1], 0, 0);	
 	}
 	else if(cmprstr(token[0],"delete\0")) 
 	{
@@ -142,6 +147,25 @@ void split(char* line)
 		if(m != 0)
 			numSec++;
 		interrupt(0x21, 8, token[1], buffer, numSec); 			
+	}
+	else if(cmprstr(token[0],"kill\0"))
+	{
+		if(token[1][0] == '0')
+			interrupt(0x21, 9, 0, 0, 0);
+		else if(token[1][0] == '1')
+			interrupt(0x21, 9, 1, 0, 0);
+		else if(token[1][0] == '2')
+			interrupt(0x21, 9, 2, 0, 0);	
+		else if(token[1][0] == '3')
+			interrupt(0x21, 9, 3, 0, 0);	
+		else if(token[1][0] == '4')
+			interrupt(0x21, 9, 4, 0, 0);	
+		else if(token[1][0] == '5')
+			interrupt(0x21, 9, 5, 0, 0);	
+		else if(token[1][0] == '6')
+			interrupt(0x21, 9, 6, 0, 0);	
+		else if(token[1][0] == '7')
+			interrupt(0x21, 9, 7, 0, 0);		
 	}
 	else
 	{
